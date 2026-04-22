@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="popup.css" />
+  <title>MoonShade</title>
+</head>
+<body>
+  <div class="popup">
+    <header class="header">
+      <h1 class="logo">MoonShade</h1>
+      <label class="toggle">
+        <input type="checkbox" id="globalToggle" />
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <section class="controls" id="controlsSection">
+      <div class="control-row">
+        <span class="control-label">Intensity</span>
+        <div class="slider-group">
+          <input type="range" id="intensitySlider" min="10" max="100" value="22" />
+          <span class="slider-value" id="intensityValue">22%</span>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <span class="control-label">Mode</span>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="btnDim" data-mode="dim">Dim</button>
+          <button class="mode-btn" id="btnWarm" data-mode="warm">Warm</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section" id="siteSection">
+      <div class="site-info">
+        <span class="site-name" id="siteName">—</span>
+        <label class="toggle toggle-sm">
+          <input type="checkbox" id="siteToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="css-editor" id="editorSection">
+        <label class="editor-label">Custom CSS</label>
+        <textarea
+          id="customCSS"
+          placeholder="body { background: #1a1a1a !important; }"
+          rows="4"
+          spellcheck="false"
+        ></textarea>
+        <button id="applyCSS" class="btn-apply">Apply</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="status" id="statusText">Loading…</span>
+    </footer>
+  </div>
+  <script type="module" src="popup.ts"></script>
+</body>
+</html>
