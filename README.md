@@ -1,5 +1,11 @@
 # MoonShade
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Pending-orange?logo=googlechrome&logoColor=white)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-green?logo=googlechrome&logoColor=white)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/kianwoon/MoonShade/compare)
+
 Make bright websites easier on the eyes with per-site dark mode, dimming, and night-friendly visual tuning.
 
 ## Features
