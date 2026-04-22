@@ -1,12 +1,20 @@
-# MoonShade
+<p align="center">
+  <img src="dark-ux.png" alt="MoonShade logo" width="128" height="128">
+</p>
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-Pending-orange?logo=googlechrome&logoColor=white)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-green?logo=googlechrome&logoColor=white)](#)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)](#)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/kianwoon/MoonShade/compare)
+<h1 align="center">MoonShade</h1>
 
-Make bright websites easier on the eyes with per-site dark mode, dimming, and night-friendly visual tuning.
+<p align="center">
+  Make bright websites easier on the eyes with per-site dark mode, dimming, and night-friendly visual tuning.
+</p>
+
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-Pending-orange?logo=googlechrome&logoColor=white" alt="Chrome Web Store"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Manifest-V3-green?logo=googlechrome&logoColor=white" alt="Manifest V3"></a>
+  <a href="#"><img src="https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://github.com/kianwoon/MoonShade/compare"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+</p>
 
 ## Features
 
