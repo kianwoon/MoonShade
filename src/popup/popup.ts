@@ -8,6 +8,14 @@ function send(msg: MessageType): Promise<ExtensionState> {
   return chrome.runtime.sendMessage(msg)
 }
 
+function debounce<A extends unknown[], R>(fn: (...args: A) => R, ms: number): (...args: A) => void {
+  let timer: ReturnType<typeof setTimeout>
+  return (...args: A) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), ms)
+  }
+}
+
 async function getCurrentHostname(): Promise<string | null> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
   if (!tab?.url) return null
@@ -66,59 +74,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   $('siteToggle').addEventListener('change', async () => {
     if (!hostname) return
-    const newState = await send({ type: 'TOGGLE_SITE', hostname })
+    const newState = await send({ type: 'TOGGLE_AND_APPLY', hostname })
     updateUI(newState, hostname)
-
-    if (newState.sites[hostname]?.enabled) {
-      await send({ type: 'APPLY_OVERLAY', hostname })
-    } else {
-      await send({ type: 'REMOVE_OVERLAY', hostname })
-    }
   })
 
   // Intensity slider — live update
-  $('intensitySlider').addEventListener('input', async (e) => {
-    const intensity = Number((e.target as HTMLInputElement).value)
-    const newState = await send({ type: 'SET_INTENSITY', intensity })
-    $('intensityValue').textContent = intensity + '%'
+  const debouncedIntensity = debounce(async (intensity: number) => {
+    await send({ type: 'APPLY_INTENSITY', intensity, hostname: hostname! })
+  }, 100)
 
-    // Live-apply overlay if site is active
-    const siteSettings = newState.sites[hostname ?? '']
-    if (siteSettings?.enabled) {
-      await send({ type: 'APPLY_OVERLAY', hostname: hostname! })
-    }
+  $('intensitySlider').addEventListener('input', (e) => {
+    const intensity = Number((e.target as HTMLInputElement).value)
+    $('intensityValue').textContent = intensity + '%'
+    debouncedIntensity(intensity)
   })
 
   // Mode toggle
   $('btnDim').addEventListener('click', async () => {
-    const newState = await send({ type: 'SET_MODE', mode: 'dim' as OverlayMode })
+    const newState = await send({ type: 'APPLY_MODE', mode: 'dim' as OverlayMode, hostname: hostname! })
     updateUI(newState, hostname)
-    const siteSettings = newState.sites[hostname ?? '']
-    if (siteSettings?.enabled) {
-      await send({ type: 'APPLY_OVERLAY', hostname: hostname! })
-    }
   })
 
   $('btnWarm').addEventListener('click', async () => {
-    const newState = await send({ type: 'SET_MODE', mode: 'warm' as OverlayMode })
+    const newState = await send({ type: 'APPLY_MODE', mode: 'warm' as OverlayMode, hostname: hostname! })
     updateUI(newState, hostname)
-    const siteSettings = newState.sites[hostname ?? '']
-    if (siteSettings?.enabled) {
-      await send({ type: 'APPLY_OVERLAY', hostname: hostname! })
-    }
   })
 
   // Custom CSS apply
   $('applyCSS').addEventListener('click', async () => {
     if (!hostname) return
     const css = ($('customCSS') as HTMLTextAreaElement).value
-    let newState = await send({ type: 'SET_CUSTOM_CSS', hostname, css })
-
-    if (!newState.sites[hostname]?.enabled) {
-      newState = await send({ type: 'TOGGLE_SITE', hostname })
-    }
-
-    await send({ type: 'APPLY_OVERLAY', hostname })
+    const newState = await send({ type: 'APPLY_CUSTOM_CSS', hostname, css })
     updateUI(newState, hostname)
     $('statusText').textContent = 'CSS applied!'
     setTimeout(() => {

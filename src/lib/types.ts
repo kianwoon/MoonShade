@@ -21,3 +21,8 @@ export type MessageType =
   | { type: 'SET_CUSTOM_CSS'; hostname: string; css: string }
   | { type: 'APPLY_OVERLAY'; hostname: string }
   | { type: 'REMOVE_OVERLAY'; hostname: string }
+  // Compound: mutation + overlay in one round-trip
+  | { type: 'APPLY_INTENSITY'; intensity: number; hostname: string }
+  | { type: 'APPLY_MODE'; mode: OverlayMode; hostname: string }
+  | { type: 'TOGGLE_AND_APPLY'; hostname: string }
+  | { type: 'APPLY_CUSTOM_CSS'; hostname: string; css: string }
