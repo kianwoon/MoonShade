@@ -1,5 +1,5 @@
 import { getState, setState } from '../lib/storage'
-import type { MessageType, OverlayMode } from '../lib/types'
+import type { MessageType, OverlayMode, ExtensionState } from '../lib/types'
 
 async function injectOverlay(tabId: number, intensity: number, mode: OverlayMode) {
   try {
@@ -42,6 +42,24 @@ async function removeOverlay(tabId: number) {
   } catch {
     // tab gone or inaccessible
   }
+}
+
+async function applyToActiveTab(state: ExtensionState, hostname: string) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+  if (!tab?.id) return
+  await applyToTab(tab.id, state, hostname)
+}
+
+async function applyToTab(tabId: number, state: ExtensionState, hostname: string) {
+  const settings = state.sites[hostname]
+  if (settings?.customCSS) {
+    await chrome.scripting.insertCSS({
+      target: { tabId },
+      css: settings.customCSS,
+      origin: 'USER',
+    })
+  }
+  await injectOverlay(tabId, state.intensity, state.mode)
 }
 
 chrome.runtime.onMessage.addListener(
@@ -93,17 +111,7 @@ async function handleMessage(msg: MessageType) {
     }
 
     case 'APPLY_OVERLAY': {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-      if (!tab?.id) return state
-      const settings = state.sites[msg.hostname]
-      if (settings?.customCSS) {
-        await chrome.scripting.insertCSS({
-          target: { tabId: tab.id },
-          css: settings.customCSS,
-          origin: 'USER',
-        })
-      }
-      await injectOverlay(tab.id, state.intensity, state.mode)
+      await applyToActiveTab(state, msg.hostname)
       return state
     }
 
@@ -111,6 +119,44 @@ async function handleMessage(msg: MessageType) {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
       if (!tab?.id) return state
       await removeOverlay(tab.id)
+      return state
+    }
+
+    case 'APPLY_INTENSITY': {
+      state.intensity = msg.intensity
+      await setState(state)
+      await applyToActiveTab(state, msg.hostname)
+      return state
+    }
+
+    case 'APPLY_MODE': {
+      state.mode = msg.mode
+      await setState(state)
+      await applyToActiveTab(state, msg.hostname)
+      return state
+    }
+
+    case 'TOGGLE_AND_APPLY': {
+      const settings = state.sites[msg.hostname] ?? { enabled: false, customCSS: '' }
+      settings.enabled = !settings.enabled
+      state.sites[msg.hostname] = settings
+      await setState(state)
+      if (settings.enabled) {
+        await applyToActiveTab(state, msg.hostname)
+      } else {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+        if (tab?.id) await removeOverlay(tab.id)
+      }
+      return state
+    }
+
+    case 'APPLY_CUSTOM_CSS': {
+      const settings = state.sites[msg.hostname] ?? { enabled: false, customCSS: '' }
+      settings.customCSS = msg.css
+      settings.enabled = true
+      state.sites[msg.hostname] = settings
+      await setState(state)
+      await applyToActiveTab(state, msg.hostname)
       return state
     }
 
@@ -133,7 +179,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const isEnabled = settings?.enabled ?? false
     if (!isEnabled) return
 
-    await injectOverlay(tabId, state.intensity, state.mode)
+    await applyToTab(tabId, state, url.hostname)
   } catch {
     // Can't inject into chrome:// pages, etc.
   }
